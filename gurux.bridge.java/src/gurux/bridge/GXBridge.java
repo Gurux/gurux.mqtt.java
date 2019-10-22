@@ -413,7 +413,7 @@ public class GXBridge
     private void publish(final String topic, final GXMessage payload)
             throws MqttPersistenceException, MqttException {
         MqttMessage msg = new MqttMessage();
-        msg.setQos(0);
+        msg.setQos(1);
         msg.setRetained(true);
         Gson g = new Gson();
         String tmp = g.toJson(payload);
