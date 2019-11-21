@@ -2,21 +2,22 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.gurux</groupId>
   <artifactId>gurux.bridge.java</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.2-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>gurux.bridge.java</name>
   <url>http://www.gurux.org</url>
-  <properties>
+ <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>7</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
   </properties>
   <build>
-    <sourceDirectory>src</sourceDirectory>
     <plugins>
       <!-- Build an executable JAR -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>2.1</version>
+        <version>3.2.1</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -59,12 +60,12 @@
     <dependency>
       <groupId>org.gurux</groupId>
       <artifactId>gurux.serial</artifactId>
-      <version>1.0.18</version>
+      <version>1.0.20</version>
     </dependency>
     <dependency>
       <groupId>org.gurux</groupId>
       <artifactId>gurux.net</artifactId>
-      <version>1.0.17</version>
+      <version>1.0.19</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.paho</groupId>
