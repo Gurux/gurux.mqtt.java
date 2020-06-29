@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.gurux</groupId>
   <artifactId>gurux.bridge.java</artifactId>
-  <version>1.0.2-SNAPSHOT</version>
+  <version>1.0.3-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>gurux.bridge.java</name>
   <url>http://www.gurux.org</url>
@@ -29,7 +29,7 @@
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <mainClass>gurux.bridge.App</mainClass>
                 </transformer>
-              </transformers>              
+              </transformers>
               <filters>
                 <filter>
                   <artifact>*:*</artifact>
@@ -60,12 +60,12 @@
     <dependency>
       <groupId>org.gurux</groupId>
       <artifactId>gurux.serial</artifactId>
-      <version>1.0.20</version>
+      <version>1.0.22</version>
     </dependency>
     <dependency>
       <groupId>org.gurux</groupId>
       <artifactId>gurux.net</artifactId>
-      <version>1.0.19</version>
+      <version>1.0.21</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.paho</groupId>
