@@ -100,8 +100,7 @@ public class App {
         String host = settings.getBrokerAddress();
         int port = settings.getBrokerPort();
         TraceLevel trace = TraceLevel.ERROR;
-        List<GXCmdParameter> parameters =
-                GXCommon.getParameters(args, "h:p:t:");
+        List<GXCmdParameter> parameters = GXCommon.getParameters(args, "h:p:t:");
         for (GXCmdParameter it : parameters) {
             switch (it.getTag()) {
             case 'h':
@@ -127,15 +126,12 @@ public class App {
             }
         }
         if (host.equals("")) {
-            throw new RuntimeException(
-                    "Broker address is missing. Example -h localhost");
+            throw new RuntimeException("Broker address is missing. Example -h localhost");
         }
         if (port == 0) {
-            throw new RuntimeException(
-                    "Broker port is missing. Example -p 1883");
+            throw new RuntimeException("Broker port is missing. Example -p 1883");
         }
-        System.out
-                .println("Connecting to the Broker in address: " + ":" + port);
+        System.out.println("Connecting to the Broker in address: " + host + ":" + port);
         GXBridge bridge = new GXBridge();
         bridge.start(trace, host, port, settings);
         System.out.println("Press Enter to close.");
@@ -145,14 +141,11 @@ public class App {
     }
 
     static void showHelp() {
-        System.out.println(
-                "Gurux.Bridge distribute received connections to several servers.");
-        System.out
-                .println("Gurux.Bridge -h Broker Address -p Broker Port numer");
+        System.out.println("Gurux.Bridge distribute received connections to several servers.");
+        System.out.println("Gurux.Bridge -h Broker Address -p Broker Port numer");
         System.out.println(" -h \tBroker IP address.");
         System.out.println(" -p \tBroker port number.");
-        System.out
-                .println(" -t [Error, Warning, Info, Verbose] Trace messages.");
+        System.out.println(" -t [Error, Warning, Info, Verbose] Trace messages.");
         System.out.println("Example:");
         System.out.println("Gurux.Bridge -h localhost -p 1883");
     }

@@ -34,8 +34,6 @@
 //---------------------------------------------------------------------------
 package gurux.bridge;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -65,13 +63,12 @@ import gurux.io.StopBits;
 import gurux.net.GXNet;
 import gurux.serial.GXSerial;
 
-public class GXBridge
-        implements MqttCallback, IGXMediaListener, IMqttActionListener {
-    TraceLevel trace;
-    Connection connection;
-    MqttAsyncClient publisher;
+public class GXBridge implements MqttCallback, IGXMediaListener, IMqttActionListener {
+    private TraceLevel trace;
+    private Connection connection;
+    private MqttAsyncClient publisher;
 
-    public static void showInformation(Connection connection) {
+    public static void showInformation(final Connection connection) {
         System.out.println("Bridge topic: " + connection.getName());
         // Subscribe to a topic
         for (GXMedia it : connection.getConnections()) {
@@ -79,14 +76,13 @@ public class GXBridge
         }
     }
 
-    public void start(TraceLevel traceLevel, String server, int port,
-            Connection c) throws MqttException {
+    public void start(final TraceLevel traceLevel, final String server, final int port,
+            final Connection c) throws MqttException {
         trace = traceLevel;
         connection = c;
         // Create a new MQTT client.
         String publisherId = UUID.randomUUID().toString();
-        publisher = new MqttAsyncClient("tcp://" + connection.getBrokerAddress()
-                + ":" + connection.getBrokerPort(), publisherId);
+        publisher = new MqttAsyncClient("tcp://" + server + ":" + port, publisherId);
         publisher.setCallback(this);
         int pos = 1;
         for (GXMedia it : connection.getConnections()) {
@@ -97,8 +93,7 @@ public class GXBridge
                 it.setTarget(new GXSerial());
                 it.getTarget().setSettings(it.getSettings());
             } else {
-                throw new RuntimeException(
-                        "Unknown media type." + it.getType());
+                throw new RuntimeException("Unknown media type." + it.getType());
             }
             if (it.getName() == null || it.getName() == "") {
                 it.setName(connection.getName() + "/" + String.valueOf(pos));
@@ -119,8 +114,7 @@ public class GXBridge
         publisher.connect(options, this);
     }
 
-    private static void initializeIEC(TraceLevel trace, GXMedia media)
-            throws Exception {
+    private static void initializeIEC(TraceLevel trace, GXMedia media) throws Exception {
         GXSerial serial = (GXSerial) media.getTarget();
         serial.setBaudRate(BaudRate.BAUD_RATE_300);
         serial.setDataBits(7);
@@ -135,8 +129,7 @@ public class GXBridge
         if (media.getWaitTime() == 0) {
             media.setWaitTime(5);
         }
-        ReceiveParameters<String> p =
-                new ReceiveParameters<String>(String.class);
+        ReceiveParameters<String> p = new ReceiveParameters<String>(String.class);
         p.setAllData(false);
         p.setEop(Terminator);
         p.setWaitTime(media.getWaitTime() * 1000);
@@ -144,8 +137,7 @@ public class GXBridge
             media.getTarget().send(data, null);
             if (!media.getTarget().receive(p)) {
                 discIEC(media);
-                String str =
-                        "Failed to receive reply from the device in given time.";
+                String str = "Failed to receive reply from the device in given time.";
                 WriteLog(trace, str);
                 media.getTarget().send(data, null);
                 if (!media.getTarget().receive(p)) {
@@ -199,8 +191,7 @@ public class GXBridge
         if (media.getMaximumBaudRate() != 0) {
             BaudRate = media.getMaximumBaudRate();
             baudrate = getIecBaudRate(BaudRate);
-            WriteLog(trace,
-                    "Maximum BaudRate is set to : " + String.valueOf(BaudRate));
+            WriteLog(trace, "Maximum BaudRate is set to : " + String.valueOf(BaudRate));
         }
         WriteLog(trace, "BaudRate is : " + String.valueOf(BaudRate));
         // Send ACK
@@ -212,8 +203,8 @@ public class GXBridge
         byte ModeControlCharacter = (byte) '2';
         // "2" //(HDLC protocol procedure) (Binary mode)
         // Set mode E.
-        byte[] arr = new byte[] { 0x06, controlCharacter, (byte) baudrate,
-                ModeControlCharacter, 13, 10 };
+        byte[] arr = new byte[] { 0x06, controlCharacter, (byte) baudrate, ModeControlCharacter, 13,
+                10 };
         WriteLog(trace, "Moving to mode E. " + GXCommon.bytesToHex(arr));
         synchronized (media.getTarget().getSynchronous()) {
             p.setReply(null);
@@ -241,8 +232,7 @@ public class GXBridge
      * @throws Exception
      */
     private static void discIEC(GXMedia media) throws Exception {
-        ReceiveParameters<String> p =
-                new ReceiveParameters<String>(String.class);
+        ReceiveParameters<String> p = new ReceiveParameters<String>(String.class);
         p.setAllData(false);
         p.setEop((byte) 0x0A);
         p.setWaitTime(media.getWaitTime() * 1000);
@@ -290,8 +280,7 @@ public class GXBridge
 
     public void connectionLost(Throwable cause) {
         if (trace.ordinal() > TraceLevel.WARNING.ordinal()) {
-            System.out.println(
-                    "--- Disconnected from the server. " + cause.getMessage());
+            System.out.println("--- Disconnected from the server. " + cause.getMessage());
         }
     }
 
@@ -301,8 +290,7 @@ public class GXBridge
         return msg;
     }
 
-    public void messageArrived(String topic, MqttMessage message)
-            throws Exception {
+    public void messageArrived(String topic, MqttMessage message) throws Exception {
         String payload = new String(message.getPayload());
         GXMessage msg = getMessage(payload);
         if (trace == TraceLevel.VERBOSE) {
@@ -326,8 +314,7 @@ public class GXBridge
                             it.getTarget().open();
                             try {
                                 // Move to mode E if optical head is used.
-                                if (it.getTarget() instanceof GXSerial
-                                        && it.getUseOpticalHead()) {
+                                if (it.getTarget() instanceof GXSerial && it.getUseOpticalHead()) {
                                     initializeIEC(trace, it);
                                 }
                                 // Mark EOP so reading is faster.
@@ -340,8 +327,7 @@ public class GXBridge
                             publish(msg.getSender(), msg2);
                             break;
                         case MessageType.SEND:
-                            it.getTarget().send(
-                                    GXCommon.hexToBytes(msg.getFrame()), null);
+                            it.getTarget().send(GXCommon.hexToBytes(msg.getFrame()), null);
                             // There is no need to send ACK.
                             break;
                         case MessageType.CLOSE:
@@ -370,8 +356,7 @@ public class GXBridge
             System.out.println(ex.getMessage());
         }
         for (GXMedia it : connection.getConnections()) {
-            if (it.getTarget() == sender
-                    && it.getMessage().getSender() != null) {
+            if (it.getTarget() == sender && it.getMessage().getSender() != null) {
                 GXMessage msg = new GXMessage();
                 msg.setId((short) 0);
                 msg.setSender(it.getName());
@@ -393,8 +378,7 @@ public class GXBridge
             System.out.println("Received: " + tmp);
         }
         for (GXMedia it : connection.getConnections()) {
-            if (it.getTarget() == sender
-                    && it.getMessage().getSender() != null) {
+            if (it.getTarget() == sender && it.getMessage().getSender() != null) {
                 GXMessage msg = new GXMessage();
                 msg.setId(it.getMessage().getId());
                 msg.setType(MessageType.RECEIVE);
@@ -439,20 +423,23 @@ public class GXBridge
             System.out.println("--- Connected with the server.");
         }
         // Subscribe topics
-        List<String> topics = new ArrayList<String>();
+        String[] topics = new String[connection.getConnections().size()];
         int[] list = new int[connection.getConnections().size()];
+        int pos = 0;
         for (GXMedia it : connection.getConnections()) {
-            topics.add(it.getName());
+            list[pos] = 2;
+            topics[pos] = it.getName();
+            ++pos;
         }
         try {
-            publisher.subscribe(topics.toArray(new String[0]), list);
+            publisher.subscribe(topics, list);
         } catch (MqttException e) {
-            System.out.println(
-                    "--- Failed to Connect to the server. " + e.getMessage());
+            System.out.println("--- Failed to Connect to the server. " + e.getMessage());
         }
     }
 
     @Override
     public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+        System.out.println("--- Failed to Connect to the server. " + exception.getMessage());
     }
 }
